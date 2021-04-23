@@ -1,0 +1,17 @@
+如果前端傳了一個data長這樣
+[
+  "S7112020070901",
+  "S7112019120001",
+.
+.
+.
+]
+
+certcode可能就是陣列資訊
+
+//這樣就可以切成一個個資料了
+string[] certcodeArray = JsonConvert.DeserializeObject<string[]>(certcode);
+
+
+//ToList()可以丟到一個LIST<string>裡面
+certcodeArray.ToList();
