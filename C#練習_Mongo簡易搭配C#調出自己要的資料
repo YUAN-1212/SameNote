@@ -1,0 +1,28 @@
+#region 是否有連上線
+//var dbClient = new MongoClient(“mongodb://IP”);
+//var dbList = dbClient.ListDatabases().ToList();
+
+//DB列表
+//foreach (var item in dbList)
+//{
+//    Console.WriteLine(item);
+//}
+#endregion
+
+#region select one
+//mongodb 連線字串
+var connString = “mongodb://IP”;
+//建立 mongo client
+var client = new MongoClient(connString);
+//取得 database
+var db2 = client.GetDatabase(“DB_NAME”);
+//取得需要的 collection           
+var cars = db2.GetCollection(“TABLE_NAME”);
+
+//做篩選條件(兩個等於)
+var builder = Builders.Filter;
+var filter = builder.Eq(“欄位”, “值”) & builder.Eq(“欄位”, 值);
+
+//把需要的資料依照篩選條件取出
+var doc = cars.Find(filter).FirstOrDefault();
+#endregion
