@@ -1,0 +1,31 @@
+--使用 DISTINCT 取得獨特計數
+
+DECLARE @TEMP TABLE(
+OrderNumber    INT PRIMARY KEY ,
+OrderDate	   DATETIME,
+ShipDate       DATETIME,
+CustomerID     INT,
+EmployeeID     INT,
+OrderTotal     DECIMAL(15, 2)
+)
+
+INSERT @TEMP VALUES(16, '2012-09-02', '2012-09-06', 1001, 707, 2007.54)
+INSERT @TEMP VALUES(7, '2012-09-01', '2012-09-04', 1001, NULL, 467.95)
+INSERT @TEMP VALUES(2, '2012-09-01', '2012-09-03', 1001, 703, 816.00)
+INSERT @TEMP VALUES(3, '2012-09-01', '2012-09-01', 1002, 707, 11912.45)
+INSERT @TEMP VALUES(8, '2012-09-01', '2012-09-01', 1003, 703, 1492.60)
+
+SELECT * FROM @TEMP
+
+SELECT  COUNT(*) AS TOTALROWS, --幾個
+		COUNT(CustomerID) AS TotalOrdersWithCustomers, --幾個顧客
+		COUNT(EmployeeID) AS TotalOrdersWithEmployees, --幾個員工(EmployeeID)
+		COUNT(DISTINCT CustomerID) AS TotalUniqueCustomers, --幾個沒重複的顧客(CustomerID)
+		COUNT(CASE WHEN OrderTotal > 1000
+					THEN CustomerID END) AS TotalLargeOrders, --幾個訂單數>1000的
+		COUNT(DISTINCT CASE WHEN OrderTotal > 1000
+					THEN CustomerID END) AS TotalUniqueCust_LargeOrders
+FROM @TEMP
+
+Effective SQL中文版 | 寫出良好SQL的61個具體做法
+P148
