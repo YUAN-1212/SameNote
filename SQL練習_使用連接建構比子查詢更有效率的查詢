@@ -1,0 +1,94 @@
+--使用連接建構比子查詢更有效率的查詢
+DECLARE @Categories TABLE (
+	CategoryID int NOT NULL, 
+	CategoryDS varchar (50) NULL
+)
+
+DECLARE @Countries TABLE (
+  CountryID int NOT NULL,
+  CountryNM varchar (50) NULL
+)
+
+DECLARE @Styles TABLE (
+  StyleID int NOT NULL,
+  CategoryFK int NULL,
+  CountryFK int NULL,
+  StyleNM varchar (50) NULL,
+  ColourLowNb float NULL,
+  ColourHighNb float NULL,
+  ABVLowNb float NULL,
+  ABVHighNb float NULL,
+  IBULowNb float NULL,
+  IBUHighNb float NULL
+)
+
+INSERT INTO @Categories (CategoryID, CategoryDS) VALUES (1, 'British or Irish Ales');
+INSERT INTO @Categories (CategoryID, CategoryDS) VALUES (2, 'European Ales');
+INSERT INTO @Categories (CategoryID, CategoryDS) VALUES (3, 'European Lagers');
+INSERT INTO @Categories (CategoryID, CategoryDS) VALUES (4, 'American Beers');
+
+INSERT INTO @Countries (CountryID, CountryNM) VALUES (1, 'England');
+INSERT INTO @Countries (CountryID, CountryNM) VALUES (2, 'Ireland');
+INSERT INTO @Countries (CountryID, CountryNM) VALUES (3, 'Scotland');
+INSERT INTO @Countries (CountryID, CountryNM) VALUES (4, 'Belgium');
+INSERT INTO @Countries (CountryID, CountryNM) VALUES (5, 'Germany');
+INSERT INTO @Countries (CountryID, CountryNM) VALUES (6, 'France');
+INSERT INTO @Countries (CountryID, CountryNM) VALUES (7, 'Bohemia (Czech Republic)');
+INSERT INTO @Countries (CountryID, CountryNM) VALUES (8, 'Austria');
+INSERT INTO @Countries (CountryID, CountryNM) VALUES (9, 'United States');
+
+INSERT INTO @Styles (StyleID, CategoryFK, CountryFK, StyleNm, ColourLowNb, ColourHighNb, ABVLowNb, ABVHighNb, IBULowNb, IBUHighNb) VALUES (1, 1, 1, 'English Golden', 3, 9, 4, 5, 40, 55);
+INSERT INTO @Styles (StyleID, CategoryFK, CountryFK, StyleNm, ColourLowNb, ColourHighNb, ABVLowNb, ABVHighNb, IBULowNb, IBUHighNb) VALUES (2, 1, 1, 'Ordinary Bitter', 4, 14, 3, 3.9, 20, 35);
+INSERT INTO @Styles (StyleID, CategoryFK, CountryFK, StyleNm, ColourLowNb, ColourHighNb, ABVLowNb, ABVHighNb, IBULowNb, IBUHighNb) VALUES (3, 1, 1, 'Best Bitter', 5, 16, 3.8, 4.6, 25, 40);
+INSERT INTO @Styles (StyleID, CategoryFK, CountryFK, StyleNm, ColourLowNb, ColourHighNb, ABVLowNb, ABVHighNb, IBULowNb, IBUHighNb) VALUES (4, 1, 1, 'Strong/Extra Special Bitter', 6, 18, 4.6, 6.2, 30, 50);
+INSERT INTO @Styles (StyleID, CategoryFK, CountryFK, StyleNm, ColourLowNb, ColourHighNb, ABVLowNb, ABVHighNb, IBULowNb, IBUHighNb) VALUES (5, 1, 1, 'Pale Ale', 5, 14, 3.8, 6.2, 20, 15);
+INSERT INTO @Styles (StyleID, CategoryFK, CountryFK, StyleNm, ColourLowNb, ColourHighNb, ABVLowNb, ABVHighNb, IBULowNb, IBUHighNb) VALUES (6, 1, 1, 'India Pale Ale', 6, 14, 4.5, 7.5, 40, 60);
+INSERT INTO @Styles (StyleID, CategoryFK, CountryFK, StyleNm, ColourLowNb, ColourHighNb, ABVLowNb, ABVHighNb, IBULowNb, IBUHighNb) VALUES (7, 1, 1, 'Light/Pale Mild', 8, 17, 2.8, 5, 10, 20);
+INSERT INTO @Styles (StyleID, CategoryFK, CountryFK, StyleNm, ColourLowNb, ColourHighNb, ABVLowNb, ABVHighNb, IBULowNb, IBUHighNb) VALUES (8, 1, 2, 'Irish Red Ale', 9, 18, 4, 6, 17, 28);
+INSERT INTO @Styles (StyleID, CategoryFK, CountryFK, StyleNm, ColourLowNb, ColourHighNb, ABVLowNb, ABVHighNb, IBULowNb, IBUHighNb) VALUES (9, 1, 3, 'Scottish Ales', 9, 17, 2.5, 5, 10, 30);
+INSERT INTO @Styles (StyleID, CategoryFK, CountryFK, StyleNm, ColourLowNb, ColourHighNb, ABVLowNb, ABVHighNb, IBULowNb, IBUHighNb) VALUES (10, 1, 1, 'English Barley Wine', 8, 22, 8, 12, 35, 70);
+INSERT INTO @Styles (StyleID, CategoryFK, CountryFK, StyleNm, ColourLowNb, ColourHighNb, ABVLowNb, ABVHighNb, IBULowNb, IBUHighNb) VALUES (11, 1, 3, 'Strong Scotch Ale', 14, 25, 6.5, 10, 17, 35);
+INSERT INTO @Styles (StyleID, CategoryFK, CountryFK, StyleNm, ColourLowNb, ColourHighNb, ABVLowNb, ABVHighNb, IBULowNb, IBUHighNb) VALUES (12, 1, 1, 'English Old Ale', 10, 30, 4.5, 6, 30, 60);
+INSERT INTO @Styles (StyleID, CategoryFK, CountryFK, StyleNm, ColourLowNb, ColourHighNb, ABVLowNb, ABVHighNb, IBULowNb, IBUHighNb) VALUES (13, 1, 1, 'English Strong Old Ale', 8, 22, 6.5, 12, 20, 75);
+INSERT INTO @Styles (StyleID, CategoryFK, CountryFK, StyleNm, ColourLowNb, ColourHighNb, ABVLowNb, ABVHighNb, IBULowNb, IBUHighNb) VALUES (14, 1, 1, 'Winter Warmer', 18, 22, 5, 7.5, 30, 50);
+
+SELECT * FROM @Categories
+SELECT * FROM @Countries
+SELECT * FROM @Styles
+
+--資料量小可用IN
+SELECT *
+FROM @Styles
+WHERE CountryFK IN
+(
+	SELECT CountryID
+	FROM @Countries
+	WHERE CountryNM = 'Scotland'
+)
+
+--使用連接，效能較佳
+SELECT S.StyleNM
+FROM @Styles  AS S
+INNER JOIN @Countries AS C
+ON S.CountryFK = C.CountryID
+WHERE C.CountryNM = 'Scotland'
+
+--避免子查詢的方式
+SELECT S.StyleNM
+FROM @Styles AS S
+WHERE EXISTS (
+	SELECT  *
+	FROM @Countries AS C WHERE CountryNM = 'Scotland'
+	AND C.CountryID = S.CountryFK
+)
+
+--使用左連接來讀取符合條件或沒有值的列很容易
+SELECT S.StyleNM
+FROM @Styles AS S
+LEFT JOIN @Countries AS C
+ON S.CountryFK = C.CountryID
+WHERE C.CountryNM='Scotland'
+OR C.CountryNM IS NULL
+
+Effective SQL中文版 | 寫出良好SQL的61個具體做法
+P178 ~ P180
