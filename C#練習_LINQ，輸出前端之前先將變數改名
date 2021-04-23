@@ -1,0 +1,12 @@
+如果是用EF
+
+var a = db.product
+return View(a);
+改成
+var a = db.product
+var outParam = a.select(o => new prod {
+productid = o.id,
+productname = o.name,
+...
+});
+return View(outParam);
