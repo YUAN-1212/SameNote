@@ -1,0 +1,99 @@
+/// <summary>
+/// 逆時針旋轉(向右)
+/// </summary>
+/// <param name="message"></param>
+/// <returns></returns>
+
+public JsonResult DoRightRotateImage(JsonMessage message)
+{
+    string img64     = "";//圖片的base64
+    string strBase64 = "data:image/jpeg;base64,";//
+    string newImg64  = "";//回傳給前端，insert到資料庫的bas64資訊
+
+    #region --先收前端來的參數--
+    JObject json  = JObject.Parse(Encoding.UTF8.GetString(Convert.FromBase64String(message.data)));
+    JsonResult jr = new JsonResult();
+    var dir       = json["dir"].ToString();//旋轉 1 -> 逆時針 || 2 -> 順時針
+    var memberid  = json["memberid"].ToString();
+    var groupcode = json["groupcode"].ToString();
+    #endregion
+
+    EPSDBContext EPSD = new EPSDBContext();
+    //撈出base64
+    var UpLoadModel   = EPSD.Database.SqlQuery<UploadFiles>("SELECT * FROM UploadFiles where memberid=@memberid and CheckRemark=@groupcode", new SqlParameter("@memberid", memberid), new SqlParameter("@groupcode", groupcode.Trim() + "ABC")).FirstOrDefault();
+
+    //base64有值
+    if (!string.IsNullOrEmpty(UpLoadModel.UploadContent))
+    {
+        //把圖片的base64字串切出來
+        string bytes   = UpLoadModel.UploadContent.Split(',')[1].ToString();
+
+        //把副檔名切出來 ,jpeg .png，在bitmap.save那邊做不同檔案格式的區分
+        string typeImg = UpLoadModel.UploadContent.Split(';')[0].ToString();
+        if (typeImg.Contains("jpeg") || typeImg.Contains("jpg"))
+        {
+            typeImg = "1";
+        }
+        else if (typeImg.Contains("png"))
+        {
+            typeImg = "2";
+        }
+
+        //還原回圖片
+        Image img = Base64ToImage(bytes);
+
+        //旋轉圖片開始
+        Bitmap bitmap = (Bitmap)img;
+
+        switch (dir)//1->逆時針 || 2->順時針
+        {
+            case "1":
+                {
+                    bitmap.RotateFlip(RotateFlipType.Rotate270FlipNone);//逆時針
+                }
+                break;
+            case "2":
+                {
+                    bitmap.RotateFlip(RotateFlipType.Rotate90FlipNone);//順時針
+                }
+                break;
+        }
+        //旋轉圖片結束
+
+        var ms = new MemoryStream();
+
+        //檔案格式的區分
+        switch (typeImg)
+        {
+            case "1":
+                {
+                    bitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
+                }
+                break;
+            case "2":
+                {
+                    bitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                }
+                break;
+        }
+        //bitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Png);                
+        bitmap.Dispose();//資源釋放                
+
+        //img64再轉回base64
+        img64 = Convert.ToBase64String(ms.ToArray());
+        newImg64 = strBase64 + img64;//newImg64 回傳給前端
+
+        //將旋轉後的圖片做更新
+        var count = EPSD.Database.ExecuteSqlCommand(" UPDATE UploadFiles SET UploadContent = @UploadContent WHERE memberid=@memberid AND CheckRemark=@groupcode" ,new SqlParameter("@memberid", memberid), new SqlParameter("@groupcode", groupcode.Trim() + "ABC"), new SqlParameter("@UploadContent", newImg64));
+        if (count > 0)//有異動的筆數
+        {
+            jr.Data = "{\"resp\":\"0\",\"base64img\":\"" + newImg64 + "\"}";
+        }
+        else
+        {
+            jr.Data = "{\"resp\":\"1\"}";
+        }
+    }
+
+    return jr;
+}
