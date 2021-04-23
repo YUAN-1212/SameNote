@@ -1,0 +1,5 @@
+var csTopicColl = (from TOP in csItemColl where TOP.topicId.Equals(item2.topicId) select TOP).FirstOrDefault();
+WriteLog.WriteErrorLog4("index.cshtml csTopicColl=" + Newtonsoft.Json.JsonConvert.SerializeObject(csTopicColl));
+
+https://stackoverflow.com/questions/4072762/how-do-i-write-unencoded-json-to-my-view-using-razor
+參考資料
