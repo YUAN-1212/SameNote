@@ -1,0 +1,58 @@
+///<summary>
+        /// 取得 newImage 經過縮放後的資料流，本函式會按所指定的圖檔比例來縮放圖檔。
+        /// </summary>
+        /// <param name="newImage">欲取得的圖檔</param>
+        /// <param name="width">欲縮放圖檔的寬度</param>
+        /// <param name="height">欲縮放圖檔的高度</param>
+
+        public static byte[] getCustomImage(byte[] newImage,
+                int width, int height)
+        {
+            Bitmap       newBitmap           =       null    ;
+            int          w, h;
+            Graphics     g                  =        null    ;
+            System.Drawing.Image original   = System.Drawing.Image.FromStream(new MemoryStream(newImage));
+
+            try
+            {
+                double      p               =       getBestPercent(original.Width, original.Height, width, height);
+                w                           =       (int)(original.Width * p);
+                h                           =       (int)(original.Height * p);
+                //newBitmap = new Bitmap(width, height, PixelFormat.Format64bppArgb);
+                newBitmap                   =       new Bitmap(width, height, PixelFormat.Format32bppArgb);
+                g                           =       Graphics.FromImage(newBitmap);
+                Rectangle   destRect        =       new Rectangle(0, 0, width, height);
+                SolidBrush  blueBrush       =       new SolidBrush(Color.White);
+                g.FillRectangle(blueBrush, destRect);
+
+                destRect                    =       new Rectangle(0, 0, w, h);
+                g.DrawImage(original, destRect);
+
+                MemoryStream    tempStream  =       new MemoryStream();
+                newBitmap.Save(tempStream, original.RawFormat);
+                //newBitmap.Save("test.png", ImageFormat.Png);
+                g.Dispose();
+                newBitmap.Dispose();
+                byte[]          bytes       =       tempStream.GetBuffer();  //byte[]   bytes=   ms.ToArray(); 这两句都可以，至于区别么，
+                return          bytes;
+            }
+            catch (Exception e)
+            {
+                
+            }
+            finally
+            {
+                if (null != g)           g.Dispose();
+                if (null != newBitmap)   newBitmap.Dispose();
+                if (null != newImage)    original.Dispose();
+            }
+            return null;
+        }
+
+
+//呼叫:
+var         aa              =       getCustomImage(圖片來原先轉byte, 200, 150);
+
+string str = Convert.ToBase64String(aa);//再轉成base64給前端
+
+string strBase64 = "data:image/jpeg;base64," + str;//完整的base64 img路徑
