@@ -1,0 +1,72 @@
+1.純粹抓IP
+public string GetIPAddress()
+{
+    WriteLog.WriteErrorLog("IP測試");
+    string ip = string.Empty;
+    System.Web.HttpContext context = System.Web.HttpContext.Current;            
+    
+    string ipAddress = context.Request.ServerVariables["REMOTE_ADDR"];
+    WriteLog.WriteErrorLog("ipAddress =" + JsonConvert.SerializeObject(ipAddress));
+
+    if (!string.IsNullOrEmpty(ipAddress))
+    {
+        string[] addresses = ipAddress.Split(',');
+        if (addresses.Length != 0)
+        {
+            ip = addresses[0];
+            return addresses[0];
+        }
+    }
+    return ip;
+}
+
+
+2.抓到IP，去call ip-api的免費API資料得到地區資訊!!! ((重要也有用!!
+
+protected void Page_Load(object sender, EventArgs e)
+{
+    string ip = GetIPAddress();
+}
+
+
+//Get Ip Address
+protected string GetIPAddress()
+{
+    string ip = string.Empty;
+    System.Web.HttpContext context = System.Web.HttpContext.Current;
+    string ipAddress = context.Request.ServerVariables["HTTP_X_FORWARDED_FOR"];
+    
+
+    if (!string.IsNullOrEmpty(ipAddress))
+    {
+        string[] addresses = ipAddress.Split(',');
+        if (addresses.Length != 0)
+        {
+            ip = addresses[0];
+            //return addresses[0];
+        }
+    }
+
+
+    string result = "http://ip-api.com/json/" + "61.216.31.30";
+
+
+
+    HttpWebRequest req = (HttpWebRequest)WebRequest.Create(result); //request請求
+    req.Timeout = 10000; //request逾時時間
+    req.Method = "GET"; //request方式
+    HttpWebResponse respone = (HttpWebResponse)req.GetResponse(); //接收respone
+    StreamReader streamReader = new StreamReader(respone.GetResponseStream(), Encoding.UTF8); //讀取respone資料
+    string result2 = streamReader.ReadToEnd(); //讀取到最後一行
+    respone.Close();
+    streamReader.Close();
+    JObject jsondata = JsonConvert.DeserializeObject<JObject>(result2); //將資料轉為json物件
+
+    return ip;
+}
+
+public static WebProxy GetWebProxy()
+{
+    return SwebProxy;
+}
+public static WebProxy SwebProxy = null;
