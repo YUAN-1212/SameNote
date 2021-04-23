@@ -1,0 +1,8 @@
+<a id="bookurl" target="_blank" href="#"></a>
+
+修改href的值，JQ做法
+$("#bookurl").attr("href", _bookurl);
+
+IS做法
+var test2 = document.getElementById('bookurl');
+test2.setAttribute('href', "_bookurl");
