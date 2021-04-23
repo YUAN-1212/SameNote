@@ -1,0 +1,8 @@
+取得網站相關路徑的寫法，常常忘記，所以做個紀錄
+一般可以這樣寫:
+Server.MapPath("要取得的路徑")
+HttpServerUtility.MapPath("要取得的路徑")
+Server是在System.Web.UI.Page命名空間之中
+
+CS檔(類別)裡面要這樣寫:
+HttpContext.Current.Server.MapPath("要取得的路徑")
