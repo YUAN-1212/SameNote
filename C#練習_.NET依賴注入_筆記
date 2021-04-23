@@ -1,0 +1,67 @@
+為什麼需要DI依賴注入?
+DI Dependency Injection 為了降低日後的維護成本，針對將來可能需要替換的組件，在程式碼中保留適度的彈性，應付未來變化的設計策略。
+
+例如: 一般建立對象時通常都是使用NEW運算符，不經意間加入太多緊密的依賴關係(dependency)，這層依賴關係可能是單向依賴，也可能是雙向依賴，形成更緊密的耦合(coupling) ZipComoressor obj = new() ZipComoressor ();
+
+但如果哪一天，因為某些原因無法再使用 ZipComoressor ，要改用其他的，那麼程式碼中的都要重新修改&測試，導致維護成本太高。
+
+改寫成: var className = ConfigurationManager.AppSettings["ComoressorClassName"]; Type aType = Type.GetType(className); ICompressor obj = (ICompressor)System.Activator.CreateInstance(aType );
+
+這裡使用了動態綁定的技巧
+**動態綁定又稱為晚期綁定late binding，程式碼執行時才決定對象的真正類型，
+
+寬鬆耦合
+在.NET或某些面向對象程式語言的世界裡，所有東西都是對象， 例如:對象A調用對象B，對象B調用對象C。 對象之間關係越緊密，耦合度越高，程式碼也越難維護。 為了提高可維護性，採用寬鬆耦合
+
+測試驅動開發 Test-Driven Devcelopment TDD
+
+甚麼是DI
+容易維護是設計軟體時的一個主要質量目標，寬鬆耦合是達成此目標的戰略目標，那麼依賴注入就是屬於戰術層次。包含一組設計模式與原則。
+
+DI經常與控制反轉(Inversion of Control，簡稱IoC)，相提並論。 IoC涵蓋範圍比較廣，DI只是IoC的一種形式。
+
+開放/封閉原則(Open/Close Principle OCP) 軟體程序的單元(類型，函式等等)應該要夠開放，以便擴充，同時要夠封閉，以避免修改現有的code。 目的是希望能在不修改現有的code的前提下增加新的功能。 通常會引入新的抽象層使code不易閱讀，並增加code的複雜度。 在設計時，應該將此原則應用在將來最有可能變動的地方。 SOLID
+
+SRP Single Responsibility Principle 單一責任原則。一個類型應該只有一個責任。
+OCP Open/closed Principle 開放/封閉原則，對開放擴充，對修改封閉。
+LSP Liskov Substitution Principle 對象應該要可以被他的子類型的對象替換，但完全不影響程序的現有行為。
+ISP Interface Segregation Principle 接口隔離原則。多個規格明確的小接口要比一個包山包海的大型接口好。
+DIP Dependency Inversion Principle 依賴倒置原則。依賴抽象類型，而不是具象類型。 (可以參考書籍: 敏捷軟體開發:原則，樣式及實務，出版社:碁峰)
+接口(Interface)是一個用來解耦合很有效的工具。
+
+DI用法與模式
+在運用DI技術時，也經常需要搭配一些設計模式，例如:工廠模式。可參考相關書籍:面向對像設計模式，深入淺出設計模式，重構-像范式前進，重構-改善既有程式的設計。
+
+注入方式
+構造函數注入 Constructor Injection
+屬性注入 Property Injection
+方法注入 Method Injection
+屬性注入 通過對象的屬性來注入相依對象，另一個稱呼是設定函式注入，與構造函數注入相似。 已知應用例: ASP.NET MVC的 ControllerBuilder.SetControllerFactory方法
+
+方法注入 已知應用例: ADO.NET的DbDataAdapter.Fill
+
+Ambient Context 模式 已知應用例: .NET類庫中提供事務管理功能的System.Transactions.TranscationScope ASP.NET 應用程序經常會用Http.web.HttpContext.Current來取得目前的HttpContext
+
+DI 容器
+DI 容器提供三項功能減輕開發人員的負擔，
+
+對象組合
+對象生命週期管理
+攔截 interception
+DI容器提供的設定方法有三種，使用XML配置文件，使用代碼，自動註冊。
+
+分層架構概述
+分層架構(layered architecture) 是一種將應用程序中各組件依其功能加以分組的邏輯架構，傳統上分三層，表示層(presentation layer)，業務邏輯層(business layer)，數據訪問層(data access layer)。但會依造規模跟複雜程度而定，沒有唯一正確的方法。
+
+表示層 : 提供用戶接口UI
+應用層 : 或稱服務層(service layer)，服務的對象是表示層。其中可能包含業務邏輯，數據驗證邏輯。
+領域模型 : 領域對象(domain objects)，數據傳輸對象(data Transfer Object; DTO)，其中亦可能包含數據驗證邏輯和部分業務邏輯。
+數據訪問層 : DAL(Data Access Layer)。數據操作的相關服務。
+基礎建設 : 提供各層所需之基礎功能，日誌(logging)，緩存(caching)，異常處理(exception handling)機制，安全機制等。
+Repository 模式
+領域層與數據對應層之間的媒介
+
+ASP NET Web API管線
+ASP NET Web API框架為了提供彈性的擴展機制，本身在設計上便採用DI技術。
+
+.NET依賴注入 作者提供的code https://github.com/huanlin/di-book-support
