@@ -1,0 +1,36 @@
+—使用關聯子查詢取得列數
+
+DECLARE @Recipes TABLE (
+RecipeID  INT PRIMARY KEY IDENTITY NOT NULL,
+RecipeTitle  VARCHAR (50) NOT NULL,
+RecipeClassID INT NOT NULL,
+Preparation VARCHAR (1000) NOT NULL,
+Notes  VARCHAR (1000) 
+)
+
+DECLARE @Recipe_Classes TABLE (
+RecipeClassID  INT PRIMARY KEY IDENTITY NOT NULL,
+RecipeClassDescription  VARCHAR (50) NOT NULL
+)
+
+INSERT @Recipes VALUES (N'Irish Stew', 1, 'Cut the beef into 1" chunks Braise the meat Add water and Guinness Chop onions, potatoes, and carrots into 1/2" chunks. Add to stew. Simmer until vegetables are done.', NULL)
+INSERT @Recipes VALUES (N'Garlic Green Beans', 2, N'Snap off and discard the ends of the beans, then rinse them in cold water. Mince the two cloves of garlic. Heat the oil in a frying pan on medium high heat. When the oil is hot, add the green beans and garlic.  Stir contiuously for about four minutes.  Place the beans on a serving dish when they''re done and sprinkle silvered almonds on the top.', 'Be sure not to burn the oil. Watch it carefully while it''s heating.')
+INSERT @Recipes VALUES (N'Fettuccini Alfredo', 1, N'Fill a large pot two thirds full with water. Add one tablespoon each of salt and vegetable oil. Bring to a rollling boil. Reduce heat, add pasta, and stir briefly. Cook until pasta is al dente. Just before the pasta is ready (about five minutes), melt the butter in a frying pan on low heat. After the butter has melted, add the heavy cream to the pan. Increase the heat to medium and stir until the mixture is slightly thickened. Remove the pan from the heat once the mixture is ready. Drain the fettuccini when it''s done and add it to the mixture in the frying pan. Mix three ounces of the cheese the the fettuccini and toss the entire mixture. Add another three ounces of cheese and the white pepper, and toss again lightly.', NULL)
+INSERT @Recipes VALUES (N'Pollo Picoso', 1, N'Wash chicken pieces thoroughly in cold water. Pat dry and set aside. Mince garlic and then mix it with the salt, pepper, and cayenne. Make sure the mixture is combined as thoroughly as possible. Coat each chicken piece (to taste) with the mixture.  Place pieces in the broiler pan and cook for 15 minutes. Turn pieces and cook for another 15 minutes. Turn pieces once more and cook for 35 - 40 minutes. When the chicken is cooked, remove from stove and let it stand for 10 minutes.', N'Pre-heat the oven to 400 degrees. Cover the bottom of a broiler pan with a sheet of aluminum foil and then pour in about 1/2 an inch of water. The water will keep the chicken grease drippings from splattering throughout the inside of the stove and causing smoke. The foil makes the pan easier to clean.')
+
+INSERT @Recipe_Classes VALUES ('Main course')
+INSERT @Recipe_Classes VALUES ('Vegetable')
+
+SELECT * FROM @Recipes
+SELECT * FROM @Recipe_Classes
+
+SELECT RC.RecipeClassDescription ,
+		(SELECT COUNT(*) FROM @Recipes  AS R
+		WHERE R.RecipeClassID = RC.RecipeClassID) AS COUNT
+FROM @Recipe_Classes AS RC
+
+■ 此關聯子查詢在大部分的資料庫系統上跑的比較快
+■ 使用 GROUP BY 會得到錯誤的結果
+
+Effective SQL中文版 | 寫出良好SQL的61個具體做法
+P169
