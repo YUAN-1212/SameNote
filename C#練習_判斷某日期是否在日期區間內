@@ -1,0 +1,24 @@
+/// <summary> 
+/// 判斷某日期是否在日期區間內
+/// </summary> 
+/// <param name="dt_keyin">要判斷的日期</param> 
+/// <param name="dt_start">開始日期</param> 
+/// <param name="dt_end">結束日期</param> 
+/// <returns></returns>  
+private bool IsInDate(DateTime dt_keyin, DateTime dt_start, DateTime dt_end)
+{
+    return dt_keyin.CompareTo(dt_start) >= 0 && dt_keyin.CompareTo(dt_end) <= 0;
+}
+
+//調用函式
+//now
+DateTime now = Convert.ToDateTime(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+
+//過去一天的
+DateTime old = Convert.ToDateTime("2020-12-31 12:00:00");
+
+//未來
+DateTime furtur = Convert.ToDateTime("2021-01-04 12:00:00");
+
+
+bool aa = IsInDate(now, old, furtur);
