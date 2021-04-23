@@ -1,0 +1,60 @@
+/ 呼叫範例
+var addr = new address("114台北市內湖區陽光街246號");
+
+if (addr.IsParseSuccessed)
+{
+ this.Response.Write("輸入：" + addr.OrginalAddress + "<br/>");
+ this.Response.Write("城市：" + addr.City + "<br/>");
+ this.Response.Write("鄉鎮市區：" + addr.Region + "<br/>");
+ this.Response.Write("剩下的：" + addr.Others + "<br/>");
+    }
+
+
+////////////////////////////////////////////////////////////////////////
+
+
+public class address
+{
+ public address(string address)
+ {
+  this.IsParseSuccessed = false;
+  this.OrginalAddress = address;
+  this.ParseByRegex(address);
+ }
+
+ private void ParseByRegex(string address)
+ {
+  var pattern = "(?<zipcode>(^\\d{5}|^\\d{3})?)(?<city>\\D+?[縣市])(?<region>\\D+?(市區|鎮區|鎮市|[鄉鎮市區]))?(?<others>.+)?";
+  Match match = Regex.Match(address, pattern);
+
+  if (match.Success)
+  {
+   this.IsParseSuccessed = true;
+   this.City = match.Groups["city"].ToString();
+   this.Region = match.Groups["region"].ToString();
+   this.Others = match.Groups["others"].ToString();
+  }
+
+ }
+
+ public bool IsParseSuccessed { get; set; }
+ /// <summary>
+ /// 城市
+ /// </summary>
+ public string City { get; set; }
+
+ /// <summary>
+ /// 鄉鎮市區
+ /// </summary>
+ public string Region { get; set; }
+
+ /// <summary>
+ /// 地址後半段
+ /// </summary>
+ public string Others { get; set; }
+
+ /// <summary>
+ /// 原地址
+ /// </summary>
+ public string OrginalAddress { get; private set; }
+}
