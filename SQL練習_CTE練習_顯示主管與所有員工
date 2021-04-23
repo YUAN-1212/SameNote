@@ -1,0 +1,49 @@
+--CTE練習 顯示主管與所有員工
+
+DECLARE @Employees TABLE (
+EmployeeID  INT NOT NULL,
+EmpFirstName  VARCHAR (50) NOT NULL,
+EmpLastName   VARCHAR (50) NOT NULL,
+ManagerID    INT 
+)
+
+INSERT @Employees VALUES (701, 'Ann', 'Palterson', NULL)
+INSERT @Employees VALUES (702, 'Mary', 'Thompson', 701)
+INSERT @Employees VALUES (703, 'Jim', 'Smith', 701 )
+INSERT @Employees VALUES (704, 'Carot', 'Viescas', NULL)
+INSERT @Employees VALUES (705, 'Michael', 'Johnson', 704)
+
+SELECT * FROM @Employees
+
+;WITH MgrEmps
+	(ManagerID, ManagerName, EmployeeID, EmployeeName,
+		EmployeeLevel) AS
+	(SELECT ManagerID, CAST(' ' AS varchar(50)), EmployeeID,
+		CAST(CONCAT(EmpFirstName, ' ', EmpLastName) AS VARCHAR(50)),
+		0 AS EmployeeLevel
+	FROM @Employees AS E
+	WHERE ManagerID IS NULL
+	UNION ALL
+	SELECT E2.ManagerID, ME.EmployeeName, E2.EmployeeID,
+	CAST(CONCAT(E2.EmpFirstName, ' ', E2.EmpLastName) AS varchar(50)),
+	EmployeeLevel + 1
+	FROM @Employees AS E2
+	INNER JOIN MgrEmps AS ME
+	ON E2.ManagerID = ME.EmployeeID )
+
+SELECT ManagerID, ManagerName, EmployeeID, EmployeeName,
+	EmployeeLevel
+FROM MgrEmps
+ORDER BY ManagerID ;
+重點整理:
+此CTE第一個查詢找出沒有指定ManagerID的員工以取得起點列。
+使用CAST以確保所有名稱欄的資料型別相容以讓UNION運作。
+第二個查詢(遞迴的)連接此CTE與原來的@Employees資料表以對應員工與主管。
+
+前兩列是不向資料表中其他人報告的主管。
+其餘的列顯示主管與所屬員工，例如Michael Johnson向Carot Viescas報告。
+
+重複使用CTE簡化複雜查詢。
+
+Effective SQL中文版 | 寫出良好SQL的61個具體做法
+P176
