@@ -1,0 +1,27 @@
+以特定條件查詢
+//直接以json撈出
+
+try { // mongodb 連線字串 var connString = "mongodb://IP"; MongoClient client = new MongoClient("mongodb://IP");
+
+var clientA = new MongoClient(connString );
+//取得 database
+var db = client.GetDatabase("DB_NAME");
+
+#region 取得所有資料
+//指定對collection [某張表]操作  
+var collection = db.GetCollection<BsonDocument>("TABLE_NAME");
+//取出資料轉list  
+var documentsAll = collection.Find(new BsonDocument()).ToList();
+#endregion
+
+#region 取得單筆資料
+//設定過濾條件 
+var Filter = new BsonDocument("欄位", "值");   
+//取出資料轉list 
+var document = collection.Find(Filter).ToList();
+//or取單筆時
+var document2 = collection.Find(Filter).FirstOrDefault();
+#endregion
+} catch (Exception EX) {
+
+} 
