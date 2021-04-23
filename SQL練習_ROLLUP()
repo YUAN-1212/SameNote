@@ -1,0 +1,36 @@
+--ROLLUP()
+DECLARE @PeopleInfo TABLE (
+    [id] [int] IDENTITY(1,1) NOT NULL,
+    [name] VARCHAR(10)  NULL,
+    PRICE  INT  NULL,
+    GOODS VARCHAR(10)  NULL,
+    DATE DATETIME  NULL
+) 
+
+INSERT @PeopleInfo VALUES('LILY', 150, '麵包' , '2021-02-19 12:00:00')
+INSERT @PeopleInfo VALUES('BOB', 200, '吐司' , '2021-02-18 12:00:00')
+INSERT @PeopleInfo VALUES('ALEA', 500, 'USB充電線' , '2021-02-17 12:00:00')
+INSERT @PeopleInfo VALUES('LILY', 1000, '日常用品' , '2021-02-20 12:00:00')
+INSERT @PeopleInfo VALUES('LILY', 5000, '房租' , '2021-02-01 12:00:00')
+INSERT @PeopleInfo VALUES('ALEA', 7000, '房租' , '2021-02-02 12:00:00')
+
+SELECT * FROM @PeopleInfo
+
+--ROLLUP會做一個匯總
+SELECT name,  SUM(PRICE) AS PRICE
+FROM @PeopleInfo
+GROUP BY ROLLUP( NAME)
+
+SELECT name,  SUM(PRICE) AS PRICE
+FROM @PeopleInfo
+GROUP BY CUBE( NAME)
+重點整理:
+∎ WHERE 句子在彙整完成之前執行。
+∎ GROUP BY 句子彙整過濾後的資料集。
+∎ HAVING 句子過濾彙整後的資料集。
+∎ ORDER BY 句子排序轉換過的資料集。
+∎ SELECT 句子有出現但沒有參加彙整函式或計算的欄必須出現在 GROUP BY 句 子中。
+∎ GROUPING SETS 以及 ROLLUP 與 CUBE 能讓你以一個查 詢執行多個查詢的 UNION。
+
+Effective SQL中文版 | 寫出良好SQL的61個具體做法
+P125
