@@ -1,0 +1,70 @@
+—使用純量子查詢做為 SELECT 句子的一個欄
+
+DECLARE @Products TABLE (
+ProductNumber  INT PRIMARY KEY IDENTITY NOT NULL,
+ProductName    VARCHAR(100) NOT NULL,
+ProductDescription  VARCHAR(10),
+ProductUPC		VARCHAR(10),
+RetailPrice		DECIMAL (18, 2) NOT NULL,
+QuantityOnHand	INT NOT NULL,
+CategoryID		INT NOT NULL
+)
+DECLARE @Orders TABLE (
+OrderNumber  INT PRIMARY KEY IDENTITY NOT NULL,
+OrderDate    SMALLDATETIME NOT NULL,
+ShipDate	 SMALLDATETIME  NOT NULL,
+CustomerID		INT NOT NULL,
+EmployeeID		INT NOT NULL,
+OrderTotal		DECIMAL (18, 2) NOT NULL
+)
+
+
+DECLARE @Order_Details TABLE (
+OrderNumber		INT NOT NULL,
+ProductNumber	INT NOT NULL,
+QuotedPrice		DECIMAL (18, 2) NOT NULL,
+QuantityOrdered		INT NOT NULL
+)
+
+
+INSERT @Products VALUES (N’Trek 9000 Mountain Bike’, NULL, NULL, 1200.00, 6, 2)
+INSERT @Products VALUES (N’Eagle FS-3 Mountain Bike’,NULL,	NULL,	1800.00, 8,	2)
+INSERT @Products VALUES (N’Dog Ear Cyclecomputer’,	NULL,	NULL,	75.00,	20,	1)
+INSERT @Products VALUES (N’Victoria Pro All Weather Tires’,	NULL,	NULL,	54.95,	20,	4)
+INSERT @Products VALUES (N’Dog Ear Helmet Mount Mirrors’,NULL,	NULL,	7.45,	12,	1)
+INSERT @Products VALUES (N’Viscount Skateboard’,	NULL,	NULL,	635.00,	5,	7)
+INSERT @Products VALUES (N’Viscount C-500 Wireless Bike Computer’,	NULL,	NULL,	49.00,	30,	1)
+
+
+INSERT @Orders VALUES (‘2015-09-01’, ‘2015-09-04’, 1018, 707, 12751.85)
+INSERT @Orders VALUES (‘2015-09-01’, ‘2015-09-03’, 1001, 703, 816.00)
+INSERT @Orders VALUES (‘2015-09-07’, ‘2015-09-10’, 1004, 704, 20221.75)
+INSERT @Orders VALUES (‘2015-09-10’, ‘2015-09-11’, 1025, 702, 877.00)
+INSERT @Orders VALUES (‘2015-09-10’, ‘2015-09-14’, 1027, 708, 8453.50)
+INSERT @Orders VALUES (‘2015-09-14’, ‘2015-09-17’, 1003, 703, 642.04)
+
+
+INSERT @Order_Details VALUES (1, 1, 1200.00, 2)
+INSERT @Order_Details VALUES (1, 6,	635.00,	 3)
+INSERT @Order_Details VALUES (1,11,	1650.00, 4)
+INSERT @Order_Details VALUES (2, 27, 24.00,	4)
+INSERT @Order_Details VALUES (2, 40, 180.00, 4)
+INSERT @Order_Details VALUES (3,11,	1650.00,1)
+
+
+SELECT * FROM @Products
+SELECT * FROM @Orders
+SELECT * FROM @Order_Details
+
+
+SELECT P.ProductNumber, P.ProductName, (
+	SELECT MAX
+	FROM @Orders AS O
+	INNER JOIN @Order_Details AS OD
+	ON O.OrderNumber = OD.OrderNumber
+	WHERE OD.ProductNumber = P.ProductNumber
+	)AS LastOrder
+FROM @Products AS P
+
+Effective SQL中文版 | 寫出良好SQL的61個具體做法
+P164
