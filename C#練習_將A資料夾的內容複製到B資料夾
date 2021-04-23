@@ -1,0 +1,35 @@
+/// <summary>
+/// 將A資料夾的內容複製到B資料夾
+/// </summary>
+/// <param name="srcFolder">A資料夾</param>
+/// <param name="destFolder">B資料夾</param>
+private static void copyFiles(string srcFolder, string destFolder)
+{
+    DirectoryInfo directoryInfo = new DirectoryInfo(srcFolder);
+    FileInfo[] files = directoryInfo.GetFiles();
+
+    foreach (FileInfo file in files) // Directory.GetFiles(srcFolder)
+    {
+        if (file.Extension == ".jpg")
+        {
+			//不允許覆寫現有檔案
+            file.CopyTo(Path.Combine(destFolder, file.Name)); //复制 ，剪切的话file.MoveTo();
+
+			//允許覆寫現有檔案
+			file.CopyTo(Path.Combine(destFolder, file.Name),true);
+        }
+        // will move all files without if stmt 
+        //file.MoveTo(Path.Combine(destFolder, file.Name));
+    }
+}
+
+protected void Button1_Click(object sender, EventArgs e)
+{
+    #region 複製A資料夾的東西到B資料夾
+    string src = "E:\\test\\src";
+    string dest = "E:\\test\\dest";
+
+    copyFiles(src, dest); // src -> dest
+
+    #endregion
+}
