@@ -1,0 +1,63 @@
+20210427
+
+MVC
+
+使用者選擇用TXT檔案輸出
+要輸出以下格式，並以,隔開
+(欄位1,2,3不輸出)
+==========================
+[欄位1:學號]|[欄位2:名字]|[欄位3:國文分數]
+111111,王小美,80
+122222,李大人,100
+123333,林阿新,30
+.......
+
+
+public ActionResult ExportFile()
+{
+            try
+            { 
+				      //回傳DataTable格式
+                var dt = [某隻cs檔案].[某隻function](model);
+
+                if (dt == null)
+                {
+                    return null;
+                }
+
+               
+                using (MemoryStream stream = new MemoryStream())
+                {
+                    using (StreamWriter streamWriter = new StreamWriter(stream))
+                    {
+                        string data = "";
+                        foreach (DataRow dr in dt.Rows)
+                        {
+                            int i = 0;
+                            foreach (DataColumn column in dt.Columns)
+                            {
+                                data += dr[column].ToString().Trim() + ",";  // 欄位間加入逗號 
+                            }
+                            data = data.TrimEnd(',');  //取消最後一個逗號 
+                            i++;
+                            if (i < dt.Rows.Count)
+                            {
+                                data += "\r\n";//換行
+                            }
+                            streamWriter.Write(data);
+                            data = "";
+                        }
+                        streamWriter.Close();
+                        streamWriter.Dispose();
+                    }
+
+                    return File(stream.ToArray(), "text/plain", "企業規模資料匯出.txt");
+                }
+                
+
+            }
+            catch (Exception ex)
+            {
+                return Json("發生錯誤");
+            }
+}
