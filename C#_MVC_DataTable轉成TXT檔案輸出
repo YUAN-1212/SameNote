@@ -51,7 +51,7 @@ public ActionResult ExportFile()
                         streamWriter.Dispose();
                     }
 
-                    return File(stream.ToArray(), "text/plain", "企業規模資料匯出.txt");
+                    return File(stream.ToArray(), "text/plain", "檔案名稱.txt");
                 }
                 
 
@@ -61,3 +61,6 @@ public ActionResult ExportFile()
                 return Json("發生錯誤");
             }
 }
+
+參考文件:
+http://ivan912928032.blogspot.com/2015/09/c-datatable.html
