@@ -1,0 +1,57 @@
+//算是常用方法
+
+/// <summary>
+/// 將 TXT 檔案寫進List
+/// </summary>
+public static  void TxtToList()
+{
+	List<student> list = new List<student>();
+	student stu = null;
+	using (StreamReader sr = new StreamReader("D:\\test.txt"))
+	{
+		String line;
+		while ((line = sr.ReadLine()) != null)
+		{
+			string[] str = line.Split(',');
+			stu = new student();
+			stu.name1 = str[0];
+			stu.id = Convert.ToInt32(str[1]);
+			list.Add(stu);
+		}
+		sr.Close();
+	}
+}
+
+/// <summary>
+/// 將 List資料寫入TXT
+/// </summary>
+public static void ListToTXT()
+{
+	List<student> list = new List<student>
+	{
+	  new student{ id=1, name1="Tim"},
+	  new student{ id=2, name1="Tom"}
+	};
+
+	FileStream fs = new FileStream("D:\\test2.txt", FileMode.Create);
+	StreamWriter sw = new StreamWriter(fs);
+	foreach (var l in list)
+	{
+		int id = l.id;
+		string name = l.name1;
+		string s = id.ToString() + " " + name + " "  + "\r\n";
+		sw.Write(s);
+
+	}
+	sw.Flush();
+	sw.Close();
+	fs.Close();
+}
+
+
+public class student
+{
+	public string name1 { get; set; }
+	public int id { get; set; }
+
+}
