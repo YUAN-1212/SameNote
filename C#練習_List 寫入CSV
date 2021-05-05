@@ -1,0 +1,40 @@
+
+/// 匯出 CSV檔案
+public byte[] ExportCSV()
+{
+	//1. 從資料庫OR其他地方組好資料
+
+	//2. List的資料寫入CSV
+	using (MemoryStream stream = new MemoryStream())
+	{
+		using (StreamWriter streamWriter = new StreamWriter(stream, System.Text.Encoding.UTF8))
+		{
+			//表頭
+			for (int i = 1; i < cellNames.Count; i++)
+			{
+				if (!i.Equals(1))
+				{
+					streamWriter.Write(',');
+				}
+				streamWriter.Write(cellNames[i]);
+			}
+
+			//內容
+			for (int i = 1; i < content.Count; i++)
+			{
+				if (!i.Equals(1))
+				{
+					streamWriter.Write(',');
+				}
+				else if (i.Equals(1))
+				{
+					streamWriter.Write("\r\n");//換行
+				}
+				streamWriter.Write(content[i]);
+			}
+		}
+		return stream.ToArray();
+	}
+}
+
+*注意: 需加System.Text.Encoding.UTF8，以免都是亂碼*
