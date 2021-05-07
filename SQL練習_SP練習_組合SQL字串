@@ -1,0 +1,129 @@
+--預存程序練習  
+
+--SP練習 根據使用者輸入的開始結束年，抓取各年平均資料
+--因為使用者輸入的開始結束年月屬動態，所以SQL會用組合的
+
+USE test
+GO 
+IF object_id('zspTEST0507') is not null DROP PROCEDURE zspTEST0507
+GO  
+
+CREATE PROCEDURE [dbo].zspTEST0507 
+(@StartYear int,@EndYear int,@Name nvarchar(20)) 
+/*----------------------------
+帶入參數:
+@StartYear  開始年
+@EndYear	結束年
+@Name		要查詢的名字
+----------------------------*/
+AS
+BEGIN
+	set transaction isolation level READ UNCOMMITTED;
+	set nocount on;
+
+
+--假設使用者輸入這些參數
+--DECLARE @StartYear	INT = 101
+--DECLARE @EndYear	INT = 104
+--DECLARE @Name	NVARCHAR(20)　= 'Lisa'
+
+DECLARE @tab table(ID　INT IDENTITY(1,1) ,y smallint) --根據使用者輸入開始結束年，儲存的表
+DECLARE @SQL_YY  NVARCHAR(1000) --組合年的SQL
+DECLARE @SQL_YP  NVARCHAR(1000) --組合PIVOT要用的SQL
+
+SET @SQL_YY = '' --一定要先SET
+SET @SQL_YP = ''
+
+--TEMP TABLE 如果存在，先刪除
+IF OBJECT_ID(N'tempdb..##TEMP') IS NOT NULL
+BEGIN
+	DROP TABLE ##TEMP
+END
+
+
+--先建立假資料，方便後續作業
+CREATE TABLE ##TEMP 
+(
+NAME NVARCHAR(20),		DataYear   INT,
+StudNum INT
+)
+
+INSERT ##TEMP VALUES ('Lisa', 100, 20)
+INSERT ##TEMP VALUES ('Lisa', 101, 40)
+INSERT ##TEMP VALUES ('Lisa', 102, 55)
+INSERT ##TEMP VALUES ('Hunk', 100, 34)
+INSERT ##TEMP VALUES ('Lisa', 103, 60)
+INSERT ##TEMP VALUES ('Hunk', 101, 30)
+INSERT ##TEMP VALUES ('Hunk', 102, 15)
+INSERT ##TEMP VALUES ('Lisa', 104, 56)
+INSERT ##TEMP VALUES ('Lisa', 105, 20)
+INSERT ##TEMP VALUES ('Hunk', 103, 70)
+INSERT ##TEMP VALUES ('Hunk', 104, 50)
+
+--按照名字，年度逐增排序
+SELECT * FROM ##TEMP　ORDER BY NAME, DataYear ASC
+
+--希望最終結果:
+SELECT * FROM 
+(
+	SELECT NAME, DataYear, StudNum FROM ##TEMP WHERE NAME = 'Lisa'
+	AND DataYear IN (101, 102, 103, 104)
+)AS T
+PIVOT
+( MAX(StudNum) FOR DataYear IN ([101], [102], [103], [104])) AS P
+
+
+
+
+while @StartYear <= @EndYear
+		begin
+			begin
+				insert into @tab select @StartYear
+
+				IF @StartYear = @EndYear --最後一筆
+				BEGIN
+					SET @SQL_YY += CONVERT(varchar, @StartYear)
+					
+					SET @SQL_YP += N'[' + CONVERT(varchar, @StartYear) + N']'
+					--SET @SQL_YP += N'[' + @StartYear + N']'
+				END
+				ELSE
+				BEGIN
+					SET @SQL_YY += CONVERT(varchar, @StartYear)　+ ' , ' 
+					
+					SET @SQL_YP += N'[' + CONVERT(varchar, @StartYear) + N']'　+ ' , ' 
+					--SET @SQL_YP += N'[' + @StartYear + N']'
+				END
+
+				
+				--SELECT @SQL_YY AS '@SQL_YY'
+				SET　@StartYear = @StartYear　+ 1;
+			end
+		end  
+
+SELECT @SQL_YY AS '@SQL_YY'
+SELECT @SQL_YP AS '@SQL_YP'
+
+
+SELECT * FROM @tab
+
+DECLARE @FinalSQL NVARCHAR(MAX)
+SET @FinalSQL = ''
+SET @FinalSQL = ' SELECT * FROM
+				(
+					SELECT NAME, DataYear, StudNum FROM ##TEMP
+					WHERE NAME = ''' + @Name + '''
+					AND DataYear IN ('+ @SQL_YY + ' )
+				)AS T 
+				PIVOT
+				( MAX(StudNum) FOR DataYear IN (' + @SQL_YP + ')) AS P
+				'
+
+
+SELECT @FinalSQL AS '@FinalSQL'
+EXEC sp_executesql  @FinalSQL  --N'@StartYear INT, @EndYear INT, @Name nvarchar(20) ',
+--@StartYear, @EndYear , @Name
+--執行
+
+END
+GO
