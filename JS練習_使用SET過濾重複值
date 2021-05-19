@@ -1,0 +1,40 @@
+使用SET 跟 filter 過濾重複項目  
+
+
+json格式:  
+[{cdid":"01","nmid":"一月","cdidi":"01","fatid":"01","fanm":"健康"},  
+{"cdid":"01","nmid":"一月","cdidi":"01","fatid":"02","fanm":"平安"},  
+{"cdid":"01","nmid":"一月","cdidi":"01","fatid":"03","fanm":"尊重"},  
+{"cdid":"02","nmid":"二月","cdidi":"01","fatid":"06","fanm":"健康"},  
+{"cdid":"02","nmid":"二月","cdidi":"01","fatid":"07","fanm":"平安"},  
+{"cdid":"02","nmid":"二月","cdidi":"01","fatid":"08","fanm":"尊重"}]  
+
+想要變成這樣:  
+[{  
+cdid":"01","nmid":"一月"  
+},  
+{  
+cdid":"02","nmid":"二月"  
+}]  
+
+
+var a = [{cdid":"01","nmid":"一月","cdidi":"01","fatid":"01","fanm":"健康"},    
+{"cdid":"01","nmid":"一月","cdidi":"01","fatid":"02","fanm":"平安"},    
+{"cdid":"01","nmid":"一月","cdidi":"01","fatid":"03","fanm":"尊重"},  
+{"cdid":"02","nmid":"二月","cdidi":"01","fatid":"06","fanm":"健康"},  
+{"cdid":"02","nmid":"二月","cdidi":"01","fatid":"07","fanm":"平安"},  
+{"cdid":"02","nmid":"二月","cdidi":"01","fatid":"08","fanm":"尊重"}]  
+var c = [];  
+
+a.forEach(ele => {  
+var newObject = [];  
+//console.log(ele);  
+newObject["value1"] = ele.cdid;  
+newObject["value2"] = ele.nmid;  
+//console.log(newObject);  
+c.push(newObject);  
+})  
+//console.log(c);  
+const set = new Set();  
+const result = c.filter(c => !set.has(c.value1) ? set.add(c.value1) : false);  
+console.log(result);  
