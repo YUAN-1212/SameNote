@@ -1,0 +1,75 @@
+DROP FUNCTION if exists dbo.zfnFormatDate
+GO
+CREATE FUNCTION dbo.zfnFormatDate
+/**********************************************************************************
+**CreateDate: 2021/07/09
+**Description: 從民國格式轉換成西元日期格式 YYY/MM/DD    
+**Source Objects :  
+**Comments: 990101 => 99/01/01
+			1000305 => 100/03/05
+**Inputs:  @Inday   
+**Syntax: select dbo.zfnFormatDate (0990101)  
+**********************************************************************************/  
+( @Inday INT) 
+RETURNS NVARCHAR(10)
+AS 
+BEGIN 
+   
+   DECLARE @RESULT NVARCHAR(20) = '';
+   DECLARE @YEAR   NVARCHAR(3) = '';
+   DECLARE @MONTH  NVARCHAR(2) = '';
+   DECLARE @DAY    NVARCHAR(2) = '';
+   
+   IF @Inday = ''
+   BEGIN
+	SET @RESULT = ''
+   END
+   ELSE
+   BEGIN
+	IF LEN( CAST( @Inday AS NVARCHAR)) <= 3
+	BEGIN
+		SET @RESULT = @Inday
+	END
+	ELSE 
+	BEGIN
+		IF(LEN(@Inday) = 4)
+		BEGIN
+			--EX 9901
+			SET @YEAR  = SUBSTRING(CAST( @Inday AS NVARCHAR), 1, 2)
+			SET @MONTH = SUBSTRING(CAST( @Inday AS NVARCHAR), 3, 2)
+		END
+		ELSE IF (LEN(@Inday) = 6)
+		BEGIN
+			--EX 990102
+			SET @YEAR  = SUBSTRING(CAST( @Inday AS NVARCHAR), 1, 2)
+			SET @MONTH = SUBSTRING(CAST( @Inday AS NVARCHAR), 3, 2)
+			SET @DAY   = SUBSTRING(CAST( @Inday AS NVARCHAR), 5, 2)
+		END
+		ELSE IF (LEN(@Inday) = 5)
+		BEGIN
+			--EX 10001
+			SET @YEAR  = SUBSTRING(CAST( @Inday AS NVARCHAR), 1, 3)
+			SET @MONTH = SUBSTRING(CAST( @Inday AS NVARCHAR), 4, 2)
+		END
+		ELSE IF (LEN(@Inday) = 7)
+		BEGIN
+			--EX 1000104
+			SET @YEAR  = SUBSTRING(CAST( @Inday AS NVARCHAR), 1, 3)
+			SET @MONTH = SUBSTRING(CAST( @Inday AS NVARCHAR), 4, 2)
+			SET @DAY   = SUBSTRING(CAST( @Inday AS NVARCHAR), 6, 2)
+		END
+
+		IF @DAY <> ''
+		BEGIN		
+			SET @RESULT = @YEAR + '/' + @MONTH + '/' + @DAY			
+		END
+		ELSE
+		BEGIN
+			SET @RESULT = @YEAR + '/' + @MONTH 
+		END
+		
+	END
+   END
+
+	RETURN  @RESULT
+END
