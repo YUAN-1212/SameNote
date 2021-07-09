@@ -1,0 +1,32 @@
+
+DROP FUNCTION if exists dbo.zfnFormatWeek
+GO
+CREATE FUNCTION dbo.zfnFormatWeek
+/**********************************************************************************
+**CreateDate: 2021/07/09
+**Description: 傳回星期格式   
+**Source Objects :  
+**Comments: 
+**Inputs:  @Inday (星期的數字 EX:1，回傳"星期一")  
+**Syntax: select dbo.zfnFormatWeek (1)  
+**********************************************************************************/  
+( @Inday int) 
+RETURNS NVARCHAR(3)
+AS 
+BEGIN 
+   
+   DECLARE @RESULT NVARCHAR(3) = '';
+   SELECT @RESULT=
+		CASE @Inday
+		WHEN 1 THEN '星期一'
+		WHEN 2 THEN '星期二'
+		WHEN 3 THEN '星期三'
+		WHEN 4 THEN '星期四'
+		WHEN 5 THEN '星期五'
+		WHEN 6 THEN '星期六'
+		WHEN 7 THEN '星期日'
+		ELSE ''
+	END 
+
+	RETURN  @RESULT
+END
