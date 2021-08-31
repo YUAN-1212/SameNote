@@ -1,0 +1,31 @@
+--假設DB有STUD這張表  
+DECLARE @STUD TABLE  
+(  
+ID INT PRIMARY KEY IDENTITY,  
+NUM INT,  
+NAME NVARCHAR(5)  
+)  
+  
+  
+INSERT @STUD VALUES(1,'LILY')  
+INSERT @STUD VALUES(2,'BOB')  
+INSERT @STUD VALUES(3,'MIKE')  
+INSERT @STUD VALUES(4,'JASON')  
+INSERT @STUD VALUES(5,'LEO')  
+  
+--刪掉一筆，這時ID就跳號了  
+DELETE @STUD WHERE ID = 3  
+  
+--使用ROW_NUMBER排序  
+SELECT  *,  
+		ROW_NUMBER() OVER(ORDER BY ID) AS NUM2--另一方法  
+FROM @STUD  
+  
+--更新NUM的編號  
+declare @num INT  
+select @num = 0  
+UPDATE @STUD  
+SET @num = @num + 1,  
+		NUM = @num  
+
+SELECT * FROM @STUD  
