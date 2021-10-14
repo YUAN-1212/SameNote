@@ -1,0 +1,29 @@
+DECLARE @TEMP TABLE
+([INDEX] INT PRIMARY KEY IDENTITY(1,1),
+[NAME] NVARCHAR(200),
+IsMajorContact BIT,
+EMAIL NVARCHAR(MAX)
+)
+
+DECLARE @emailto_tab table(num  int IDENTITY(1,1) NOT NULL,emailto nvarchar(200))
+
+DECLARE @MAILTO NVARCHAR(MAX)--注意!後面不要加=''，不然SET之後前面會有逗號
+
+INSERT @TEMP VALUES('王曉明', 0, 'TEST@GMAIL.COM')
+INSERT @TEMP VALUES('張大大', 1, 'WOW@GMAIL.COM')
+INSERT @TEMP VALUES('陳小貓', 1, 'CAT@GMAIL.COM')
+INSERT @TEMP VALUES('張小珍', 0, 'MEOW@GMAIL.COM')
+
+
+SELECT @MAILTO = COALESCE(@MAILTO + ', ', '') + EMAIL
+FROM @TEMP
+WHERE IsMajorContact=1
+SELECT @MAILTO  as StringValue
+
+--用逗號分開
+insert into @emailto_tab select * from string_split(@MAILTO,   ',')
+SELECT * FROM @emailto_tab
+
+KEYWORD:
+sql select two rows in one
+sql select merge multiple values
