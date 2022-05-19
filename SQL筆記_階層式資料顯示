@@ -1,0 +1,46 @@
+--階層式的資料
+
+DECLARE @test TABLE (
+pk  INT  PRIMARY KEY IDENTITY NOT NULL,
+name   nvarchar(30)   NOT NULL,--名字
+sex	 nvarchar(1)   NULL,--性別 1男性 2 女性
+age	 smallint   NULL,--年齡
+datatype smallint   null,--資料類型 null為該筆資料的第一筆,1是第一次段考,2是第二次段考
+textDate datetime	   NULL,--測驗時間
+score1	 INT		   NULL,--國文成績
+score2	 INT		   NULL,--數學成績
+score3	 INT		   NULL,--自然成績
+score4	 INT		   NULL--社會成績
+)
+
+
+INSERT into @test VALUES ('Lily', 2, 30, null, '2022-10-10 13:30:00', null, null, null, null)
+INSERT into @test VALUES ('Lily', 2, 30, 1, '2022-10-10 13:30:00', 70, 60, 55, 90)
+INSERT into @test VALUES ('Lily', 2, 30, 2, '2022-12-05 10:30:00', 80, 75, 80, 100)
+INSERT into @test VALUES ('Lily', 2, 30, 2, '2022-12-05 10:30:00', 88, 45, 85, 70)
+
+INSERT into @test VALUES ('Bill', 1, 25, null, '2022-10-10 13:30:00', null, null, null, null)
+INSERT into @test VALUES ('Bill', 1, 25, 1, '2022-10-10 13:30:00', 95, 77, 80, 90)
+INSERT into @test VALUES ('Bill', 1, 25, 1, '2022-10-10 13:30:00', 80, 70, 95, 100)
+INSERT into @test VALUES ('Bill', 1, 25, 2, '2022-12-05 10:30:00', 88, 95, 53, 60)
+
+INSERT into @test VALUES ('Kevin', 1, 26, null, '2022-10-10 13:30:00', null, null, null, null)
+INSERT into @test VALUES ('Kevin', 1, 26, 1, '2022-10-10 13:30:00', 72, 54, 95, 63)
+INSERT into @test VALUES ('Kevin', 1, 26, 2, '2022-12-05 10:30:00', 85, 60, 99, 100)
+
+--抓出全部資料
+select * from @test
+
+--抓出有階層式的資料
+select 
+DENSE_RANK()over(
+		order by 
+		name, sex,age
+   ) as rowno--第一層群組
+   ,DENSE_RANK()over(
+   partition by 
+		name, sex,age 	
+    order by datatype		
+   ) as rowno2--第二層群組
+,*
+from @test order by rowno
