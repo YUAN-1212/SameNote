@@ -1,0 +1,72 @@
+1. update
+--假設a是資料庫裡面的資料
+DROP TABLE IF EXISTS  #a 
+create table #a(
+id int primary key identity(1, 1),
+name nvarchar(200),
+pid int,
+[desc] nvarchar(200)
+)
+
+--假設b是excel匯入指定要更新的資料
+declare @b table(
+id int primary key identity(1, 1),
+pid int,
+[desc] nvarchar(200)
+)
+
+insert #a values ('Lily', 1, '今天新聞說.......')
+insert #a values ('Ben', 3,'testtesttest.......')
+insert #a values ('Tom', 10,'明天開始即.......')
+insert #a values ('Alien', 4,'華納威秀近期上映影片為.......')
+insert #a values ('yuri', 7,'123456789.......')
+insert #a values ('Mac', 9,'指揮中心修訂病例定義.......')
+insert #a values ('Zark', 20,'民眾使用家用抗原.......')
+
+insert @b values (4, 'HELLO!!!!!!!!')
+insert @b values (7, '希望世界和平~~~')
+
+select * from #a
+select * from @b
+
+--update的話只有 # 的表可以用，@的表無法用
+update #a
+	set [desc] = b.[desc]
+from @b as b
+where #a.pid = b.pid
+
+select * from #a
+
+------------------------------------------------
+2.delete
+--假設a是資料庫裡面的資料
+declare @a table(
+id int primary key identity(1, 1),
+name nvarchar(200),
+pid int,
+[desc] nvarchar(200)
+)
+
+--假設b是excel匯入指定要刪掉的資料
+declare @b table(
+id int primary key identity(1, 1),
+pid int
+)
+
+insert @a values ('Lily', 1, '今天新聞說.......')
+insert @a values ('Ben', 3,'testtesttest.......')
+insert @a values ('Tom', 10,'明天開始即.......')
+insert @a values ('Alien', 4,'華納威秀近期上映影片為.......')
+insert @a values ('yuri', 7,'123456789.......')
+insert @a values ('Mac', 9,'指揮中心修訂病例定義.......')
+insert @a values ('Zark', 20,'民眾使用家用抗原.......')
+
+insert @b values (4)
+insert @b values (7)
+
+select * from @a
+select * from @b
+
+delete from @a where pid in (select pid from @b)
+
+select * from @a
