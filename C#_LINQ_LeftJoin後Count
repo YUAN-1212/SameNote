@@ -1,0 +1,237 @@
+假設
+A表是課程設定的表
+---------------------------------------------------------------------------------------
+id | name (課程名稱)     | stDate (課程起日) | edDate (課程迄日) | AddDate (新增時間) |
+---------------------------------------------------------------------------------------
+1  | 小一的認識注音      | 2023-01-01        | 2023-02-01        | 2022-12-05 00:00:00|
+---------------------------------------------------------------------------------------
+2  | 一年一班的自我介紹  | 2023-01-01        | 2023-01-01        | 2022-12-01 00:00:00|
+---------------------------------------------------------------------------------------
+3  | 小一的第一堂音樂課  | 2023-01-05        | 2023-01-07        | 2022-12-29 00:00:00|
+---------------------------------------------------------------------------------------
+
+B表是報名的表
+---------------------------------------------------------------------------------------
+id | aID(a表id) | 學生帳號id | 學生帳號名稱 | AddDate (新增時間) |
+---------------------------------------------------------------------------------------
+1  | 1          | 9987123    | lily         | 2022-12-06 00:00:00|
+---------------------------------------------------------------------------------------
+2  | 1          | 1178910    | tina         | 2022-12-06 13:00:00|
+---------------------------------------------------------------------------------------
+3  | 1          | 1452830    | Ann          | 2022-12-07 10:15:00|
+---------------------------------------------------------------------------------------
+4  | 2          | 1178910    | tina         | 2022-12-06 13:29:00|
+---------------------------------------------------------------------------------------
+
+需要呈現的樣子
+---------------------------------------------------------------------------------------
+id(A表) | name (課程名稱)     | stDate (課程起日) | edDate (課程迄日) |   報名人數    | 
+---------------------------------------------------------------------------------------
+1       | 小一的認識注音      | 2023-01-01        | 2023-02-01        |    3          |
+---------------------------------------------------------------------------------------
+2       | 一年一班的自我介紹  | 2023-01-01        | 2023-01-01        |    1          |
+---------------------------------------------------------------------------------------
+3       | 小一的第一堂音樂課  | 2023-01-05        | 2023-01-07        |    0          |
+---------------------------------------------------------------------------------------
+
+SQL語法很簡單:
+----------------------------------
+declare @a table
+(
+[id] int identity(1,1) not null,
+[name] nvarchar(50) not null,
+stDate datetime,
+edDate datetime,
+AddDate datetime
+)
+
+declare @b table
+(
+[id] int identity(1,1) not null,
+aID int not null,
+userid nvarchar(10) not null,
+username nvarchar(10) not null,
+AddDate datetime
+)
+
+insert @a (name, stDate, edDate, AddDate)
+values('小一的認識注音', '2023-01-01 00:00:00', '2023-02-01 00:00:00', '2022-12-05 00:00:00')
+insert @a (name, stDate, edDate, AddDate)
+values('一年一班的自我介紹', '2023-01-01 00:00:00', '2023-01-01 00:00:00', '2022-12-01 00:00:00')
+insert @a (name, stDate, edDate, AddDate)
+values('小一的第一堂音樂課', '2023-01-05 00:00:00', '2023-01-07 00:00:00', '2022-12-29 00:00:00')
+
+insert @b (aid, userid, username, AddDate)
+values(1, '9987123', 'lily', '2022-12-06 00:00:00')
+insert @b (aid, userid, username, AddDate)
+values(1, '1178910', 'tina', '2022-12-06 13:00:00')
+insert @b (aid, userid, username, AddDate)
+values(1, '1452830', 'Ann', '2022-12-07 10:15:00')
+insert @b (aid, userid, username, AddDate)
+values(2, '1178910', 'tina', '2022-12-06 13:29:00')
+
+--select * from @a
+--select * from @b
+
+
+select 
+	temp.id
+	,temp.name
+	,temp.stDate
+	,temp.edDate
+	,SUM(temp.count) as countNumber--人數
+from
+(
+	select 
+		a.id
+		,a.name
+		,a.stDate
+		,a.edDate
+		,SUM(b.id) as [count]
+	from @a as a
+	left join @b as b on a.id = b.aID
+	group by 
+		a.id
+		,a.name
+		,a.stDate
+		,a.edDate
+		,b.userid
+)as temp
+group by
+id
+,[name]
+,stDate
+,edDate
+,[count]
+----------------------------------
+
+如果是用C#寫的呢?
+ /// <summary>
+/// A表的資料
+/// </summary>
+public class TempA
+{
+    public int id { get; set; }
+    public string name { get; set; }
+    public string stDate { get; set; }
+    public string edDate { get; set; }
+
+    public DateTime AddDate { get; set; }
+}
+
+/// <summary>
+/// B表的資料
+/// </summary>
+public class TempB
+{
+    public int id { get; set; }
+    public int aid { get; set; }
+    public string name { get; set; }
+    public string userid { get; set; }
+    public string username { get; set; }
+
+    public DateTime AddDate { get; set; }
+}
+
+/// <summary>
+/// 最後呈現的資料
+/// </summary>
+public class TempC
+{
+    public int id { get; set; }
+    public string userid { get; set; }
+    public string username { get; set; }
+    public string stDate { get; set; }
+    public string edDate { get; set; }
+
+    public int countNumber { get; set; }
+}
+        
+        
+var tempa = new List<TempA>();
+tempa.Add(new TempA
+{
+id = 1,
+name = "小一的認識注音",
+stDate = "2023-01-01",
+edDate = "2023-02-01",
+AddDate = DateTime.Parse("2022-12-05 00:00:00"),
+});
+tempa.Add(new TempA
+{
+id = 2,
+name = "一年一班的自我介紹",
+stDate = "2023-01-01",
+edDate = "2023-01-01",
+AddDate = DateTime.Parse("2022-12-01 00:00:00"),
+});
+tempa.Add(new TempA
+{
+id = 3,
+name = "小一的第一堂音樂課",
+stDate = "2023-01-05",
+edDate = "2023-01-07",
+AddDate = DateTime.Parse("2022-12-29 00:00:00"),
+});
+
+var tempb = new List<TempB>();
+tempb.Add(new TempB
+{
+id = 1,
+aid = 1,
+userid = "9987123",
+username = "lily",
+AddDate = DateTime.Parse("2022-12-06 00:00:00"),
+});
+tempb.Add(new TempB
+{
+id = 2,
+aid = 1,
+userid = "1178910",
+username = "tina",
+AddDate = DateTime.Parse("2022-12-06 13:00:00"),
+});
+tempb.Add(new TempB
+{
+id = 3,
+aid = 1,
+userid = "1452830",
+username = "Ann",
+AddDate = DateTime.Parse("2022-12-07 10:15:00"),
+});
+tempb.Add(new TempB
+{
+id = 4,
+aid = 2,
+userid = "1178910",
+username = "tina",
+AddDate = DateTime.Parse("2022-12-06 13:29:00"),
+});
+
+var cData = (from a in tempa
+ join b in tempb on a.id equals b.aid into cTemp
+ from c in cTemp.DefaultIfEmpty()
+ select new {a, c });
+
+var ddd = cData.ToList();
+
+var aaaaaa = cData
+    .GroupBy(p => new
+    {
+    p.a.id,
+    p.a.name,
+    p.a.stDate,
+    p.a.edDate,
+    //p.userid
+    })
+    .Select(p => new
+    {
+    id = p.Key.id,
+    name = p.Key.name,
+    stDate = p.Key.stDate,
+    edDate = p.Key.edDate,                    
+    countNumber = p.Count(s =>s.c != null)
+    }).ToList();
+
+
+
