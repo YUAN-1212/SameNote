@@ -75,34 +75,18 @@ values(2, '1178910', 'tina', '2022-12-06 13:29:00')
 
 
 select 
-	temp.id
-	,temp.name
-	,temp.stDate
-	,temp.edDate
-	,SUM(temp.count) as countNumber--人數
-from
-(
-	select 
-		a.id
-		,a.name
-		,a.stDate
-		,a.edDate
-		,SUM(b.id) as [count]
-	from @a as a
-	left join @b as b on a.id = b.aID
-	group by 
-		a.id
-		,a.name
-		,a.stDate
-		,a.edDate
-		,b.userid
-)as temp
-group by
-id
-,[name]
-,stDate
-,edDate
-,[count]
+a.id
+,a.name
+,a.stDate
+,a.edDate
+,count(b.aID) as [count]
+from @a as a
+left join @b as b on a.id = b.aID
+group by 
+	a.id
+	,a.name
+	,a.stDate
+	,a.edDate
 ----------------------------------
 
 如果是用C#寫的呢?
