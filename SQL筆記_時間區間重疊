@@ -1,0 +1,54 @@
+--資料相同但有多筆時間，合併時間
+
+--假設db有這樣的一張表
+declare @temp table(
+[no] int Primary  key identity(1, 1), --流水號
+name nvarchar(20), --契約編號
+exeYear int, --簽訂契約年度
+startdate datetime, --契約起日
+enddate datetime --契約迄日
+)
+
+--計算用的第一張表
+declare @temp2 table(
+[rank] int, --分組的編號
+name nvarchar(20), --契約編號
+startdate datetime, --契約起日
+enddate datetime --契約迄日
+)
+
+insert into @temp values('A001', 108, '2017-01-01', '2019-01-01')
+insert into @temp values('A001', 109, '2017-01-01', '2020-01-01')
+insert into @temp values('A001', 110, '2021-01-01', '2021-12-31')
+insert into @temp values('A001', 111, '2021-01-01', '2021-12-31')
+insert into @temp values('A002', 109, '2018-03-01', '2022-02-28')
+insert into @temp values('A002', 110, '2018-03-01', '2022-02-28')
+insert into @temp values('A002', 112, '2018-03-01', '2023-02-28')
+insert into @temp values('A003', 103, '2012-08-15', '2015-08-14')
+insert into @temp values('A003', 105, '2012-08-15', '2018-12-31')
+insert into @temp values('A003', 109, '2012-08-15', '2018-12-31')
+
+--清單
+select * from @temp
+
+--依據契約起始日來分組
+insert into @temp2
+select
+	DENSE_RANK() over (order by name,startdate ) as [rank]
+	,name
+	,startdate
+	,enddate
+from @temp
+where 1 = 1
+
+--計算契約起迄日有幾天
+select 
+	[rank]
+	,DENSE_RANK() over (order by [name] ) as [group] --以契約名稱分組
+	,name
+	,MIN(startdate) as startdate
+	,MAX(enddate) as enddate
+	,DATEDIFF(day, MIN(startdate), MAX(enddate)) as DiffDate
+from @temp2
+group by [rank]
+   ,name
