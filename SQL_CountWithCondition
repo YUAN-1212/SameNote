@@ -1,0 +1,100 @@
+成績表:
+-----------------------------------------
+班別    | 科目     | 學號      | 分數
+classid | category | studentid | grade
+-----------------------------------------
+A       | Chinese  | A001      | 86   
+-----------------------------------------
+A       | Math     | A001      | 97   
+-----------------------------------------
+A       | English  | A001      | 100   
+-----------------------------------------
+A       | Chinese  | A002      | 33   
+-----------------------------------------
+A       | Math     | A002      | 50   
+-----------------------------------------
+A       | English  | A002      | 77   
+-----------------------------------------
+A       | Chinese  | A003      | 100   
+-----------------------------------------
+A       | Math     | A003      | 30   
+-----------------------------------------
+A       | English  | B001      | 99   
+-----------------------------------------
+B       | Chinese  | B001      | 50   
+-----------------------------------------
+B       | Math     | B001      | 60   
+-----------------------------------------
+B       | English  | B001      | 70   
+-----------------------------------------
+B       | Chinese  | B002      | 55   
+-----------------------------------------
+B       | Math     | B002      | 100   
+-----------------------------------------
+B       | English  | B002      | 98   
+-----------------------------------------
+B       | Chinese  | B003      | 1   
+-----------------------------------------
+B       | Math     | B003      | 50   
+-----------------------------------------
+B       | English  | B003      | 99   
+-----------------------------------------
+
+希望產生以A班同學的下表格式
+----------------------------------------------------------------------------------------
+A班科目 | A級人數80分以上 | B級人數  | C級人數 | A級平均分數 | B級平均分數 | C級平均分數
+        |                | 60~79   | 0~59   | 80分以上    | 60~79       | 0~59
+----------------------------------------------------------------------------------------
+English  | 2		         | 1	     |  0      |   99        |  77         | NULL
+----------------------------------------------------------------------------------------
+Chinese | 2              |  0       |  1      | 93          | NULL        | 33
+----------------------------------------------------------------------------------------
+ Math   | 1              | 0        | 2       |  97         | NULL        | 40
+
+SQL:
+
+declare @temp table
+(
+calssid nvarchar(2),
+cate nvarchar(50),
+studentid nvarchar(20),
+grade int
+)
+
+insert into @temp
+values('A', 'chinese', 'A001', 86)
+insert into @temp
+values('A', 'math', 'A001', 97)
+insert into @temp
+values('A', 'english', 'A001', 100)
+insert into @temp
+values('A', 'chinese', 'A002', 33)
+insert into @temp
+values('A', 'math', 'A002', 50)
+insert into @temp
+values('A', 'english', 'A002', 77)
+insert into @temp
+values('A', 'chinese', 'A003', 100)
+insert into @temp
+values('A', 'math', 'A003', 30)
+insert into @temp
+values('A', 'english', 'A003', 99)
+
+select * from @temp
+
+select
+  cate  as 'A班科目'
+  ,sum(case when grade > 80 then 1 else 0 end) as 'A級人數80分以上'
+   ,sum(case when grade >= 60 and grade < 80 then 1 else 0 end) as 'B級人數60~79'
+  ,sum(case when grade  < 60 then 1 else 0 end) as 'c級人數0~59'
+
+  ,sum(case when grade > 80 then grade else NULLIF(0,0) end) / sum(case when grade > 80 then 1 else 0 end) as 'A級平均分數80分以上'
+  ,sum(case when grade >= 60 and grade < 80 then grade else NULLIF(0,0) end) / sum(case when grade >= 60 and grade < 80 then 1 else 0 end) as 'B級平均分數60~79'
+ ,sum(case when grade  < 60 then grade  else NULLIF(0,0) end) / sum(case when grade  < 60  then 1 else 0 end) as 'c級平均分數0~59'
+from @temp
+where calssid = 'A'
+group by cate
+
+
+
+
